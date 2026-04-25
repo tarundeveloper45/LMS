@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>LearnForge — LMS Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070f;--bg2:#0f0f1a;--bg3:#161625;--card:#1a1a2e;--card2:#1e1e35;
+  --border:#252540;--border2:#303058;
+  --pur:#7c5cfc;--pur2:#a78bfa;--pur3:#c4b5fd;--pur-glow:rgba(124,92,252,0.25);
+  --gold:#f6c90e;--gold2:#fde68a;
+  --green:#22c55e;--green2:#86efac;
+  --red:#ef4444;--red2:#fca5a5;
+  --blue:#3b82f6;--blue2:#93c5fd;
+  --text:#eeeaf8;--text2:#8b87ab;--text3:#4d4a6b;
+  --r:12px;--r2:16px;--r3:20px;
+  --font-h:'Playfair Display',serif;
+  --font-b:'Plus Jakarta Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;overflow-x:hidden}
+button{cursor:pointer;font-family:var(--font-b);border:none;outline:none}
+input,select,textarea{font-family:var(--font-b)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:200;background:rgba(7,7,15,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:66px}
+.logo{font-family:var(--font-h);font-size:1.45rem;font-weight:700;letter-spacing:-0.01em;cursor:pointer}
+.logo span{color:var(--pur2)}
+.nav-center{display:flex;align-items:center;gap:2rem}
+.nav-link{font-size:.875rem;color:var(--text2);cursor:pointer;transition:color .2s;background:none;border:none;padding:4px 0}
+.nav-link:hover{color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:1rem}
+.cart-btn{position:relative;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--text2);transition:all .2s}
+.cart-btn:hover{border-color:var(--pur);color:var(--pur3)}
+.cart-count{position:absolute;top:-7px;right:-7px;background:var(--pur);color:#fff;border-radius:50%;width:18px;height:18px;font-size:.65rem;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:var(--r);font-size:.875rem;font-weight:500;transition:all .2s;cursor:pointer;border:none}
+.btn-primary{background:var(--pur);color:#fff}
+.btn-primary:hover{background:#6d4fe0;transform:translateY(-1px);box-shadow:0 8px 24px var(--pur-glow)}
+.btn-secondary{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+.btn-secondary:hover{border-color:var(--pur);color:var(--pur3)}
+.btn-gold{background:var(--gold);color:#1a1000;font-weight:600}
+.btn-gold:hover{background:#e5b800;transform:translateY(-1px);box-shadow:0 8px 24px rgba(246,201,14,0.3)}
+.btn-green{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:var(--green)}
+.btn-green:hover{background:rgba(34,197,94,0.2)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-outline:hover{border-color:var(--pur2);color:var(--pur3)}
+.btn-danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:var(--red)}
+.btn-danger:hover{background:rgba(239,68,68,0.18)}
+.btn-sm{padding:7px 14px;font-size:.8rem}
+.btn-lg{padding:14px 32px;font-size:1rem}
+.btn-full{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none !important}
+
+/* ── PAGES ── */
+.page{display:none}
+.page.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HERO ── */
+.hero{padding:7rem 2.5rem 5rem;max-width:1180px;margin:0 auto;text-align:center;position:relative}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(ellipse at center,rgba(124,92,252,0.12) 0%,transparent 70%);pointer-events:none}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(124,92,252,0.1);border:1px solid rgba(124,92,252,0.28);border-radius:100px;padding:6px 16px;font-size:.78rem;color:var(--pur3);margin-bottom:2rem;letter-spacing:.04em}
+.hero h1{font-family:var(--font-h);font-size:clamp(3rem,7vw,5.5rem);font-weight:700;line-height:1.06;letter-spacing:-0.03em;margin-bottom:1.5rem}
+.hero h1 .italic{font-style:italic;color:var(--pur2)}
+.hero-sub{font-size:1.15rem;color:var(--text2);max-width:560px;margin:0 auto 3rem;line-height:1.75}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:5rem}
+.hero-strip{display:flex;gap:2.5rem;justify-content:center;padding-top:3rem;border-top:1px solid var(--border);flex-wrap:wrap}
+.strip-item{text-align:center}
+.strip-num{font-family:var(--font-h);font-size:2.2rem;font-weight:700;color:var(--pur3)}
+.strip-lbl{font-size:.78rem;color:var(--text3);margin-top:3px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ── FEATURE GRID ── */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;max-width:1180px;margin:0 auto;padding:0 2.5rem 5rem}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:1.5rem;transition:all .25s}
+.feat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.feat-icon{font-size:1.75rem;margin-bottom:.875rem}
+.feat-card h3{font-size:.95rem;font-weight:600;margin-bottom:.4rem}
+.feat-card p{font-size:.82rem;color:var(--text2);line-height:1.6}
+
+/* ── SECTION ── */
+.section{max-width:1180px;margin:0 auto;padding:3rem 2.5rem}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}
+.sec-head h2{font-family:var(--font-h);font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:500;letter-spacing:-0.02em}
+.sec-head p{color:var(--text2);font-size:.9rem;margin-top:.3rem}
+
+/* ── FILTER / SEARCH ── */
+.toolbar{display:flex;gap:.875rem;flex-wrap:wrap;margin-bottom:2rem;align-items:center}
+.search-box{flex:1;min-width:200px;position:relative}
+.search-box input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:10px 14px 10px 42px;font-size:.875rem;transition:border .2s}
+.search-box input:focus{outline:none;border-color:var(--pur)}
+.search-box input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.filter-pills{display:flex;gap:.5rem;flex-wrap:wrap}
+.pill{background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:100px;padding:6px 16px;font-size:.8rem;cursor:pointer;transition:all .2s;font-family:var(--font-b)}
+.pill:hover,.pill.on{background:rgba(124,92,252,0.15);border-color:var(--pur);color:var(--pur3)}
+
+/* ── COURSE GRID ── */
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:all .28s}
+.cc:hover{border-color:var(--pur);transform:translateY(-4px);box-shadow:0 12px 40px rgba(124,92,252,0.18)}
+.cc-thumb{height:164px;display:flex;align-items:center;justify-content:center;font-size:3.8rem;position:relative;overflow:hidden}
+.cc-ribbon{position:absolute;top:10px;left:10px;background:var(--gold);color:#1a1000;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:6px}
+.cc-level{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);color:var(--text2);font-size:.68rem;padding:3px 10px;border-radius:6px}
+.cc-body{padding:1.25rem}
+.cc-cat{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--pur2);font-weight:600;margin-bottom:.5rem}
+.cc-title{font-family:var(--font-h);font-size:1.05rem;font-weight:500;margin-bottom:.45rem;line-height:1.3}
+.cc-desc{font-size:.8rem;color:var(--text2);line-height:1.55;margin-bottom:.9rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cc-meta{display:flex;gap:.875rem;font-size:.75rem;color:var(--text3);margin-bottom:.9rem;flex-wrap:wrap}
+.cc-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.9rem;border-top:1px solid var(--border)}
+.cc-price{font-family:var(--font-h);font-size:1.3rem;font-weight:700;color:var(--gold)}
+.cc-orig{font-size:.8rem;color:var(--text3);text-decoration:line-through;margin-left:4px}
+.cc-save{font-size:.7rem;color:var(--green);margin-left:4px;font-weight:600}
+.owned-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--green);font-size:.7rem;font-weight:600;padding:4px 10px;border-radius:6px}
+.cart-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(124,92,252,.12);border:1px solid rgba(124,92,252,.28);color:var(--pur3);font-size:.7rem;font-weight:600;padding:4px 10px;border-radius:6px}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:4rem 1rem;color:var(--text3)}
+.empty-icon{font-size:3rem;margin-bottom:.875rem}
+.empty h3{font-family:var(--font-h);font-size:1.2rem;font-weight:400;margin-bottom:.5rem;color:var(--text2)}
+.empty p{font-size:.85rem;margin-bottom:1.5rem}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:300;align-items:center;justify-content:center;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r3);width:100%;position:relative;max-height:92vh;overflow-y:auto}
+.modal-sm{max-width:480px}
+.modal-md{max-width:580px}
+.modal-lg{max-width:720px}
+.modal-xl{max-width:900px}
+.mclose{position:absolute;top:1rem;right:1rem;background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all .2s;z-index:1;cursor:pointer}
+.mclose:hover{background:var(--card);color:var(--text)}
+.mhead{padding:2rem 2rem 0}
+.mhead h3{font-family:var(--font-h);font-size:1.5rem;font-weight:500;margin-bottom:.3rem}
+.mhead p{color:var(--text2);font-size:.875rem}
+.mbody{padding:1.5rem 2rem 2rem}
+
+/* ── FORMS ── */
+.fg{margin-bottom:1.1rem}
+.fg label{display:block;font-size:.8rem;color:var(--text2);margin-bottom:.4rem;font-weight:500}
+.fg input,.fg select{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:11px 14px;font-size:.875rem;transition:border .2s}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--pur)}
+.fg input::placeholder{color:var(--text3)}
+.fg .hint{font-size:.73rem;color:var(--text3);margin-top:.35rem}
+.fg select option{background:var(--bg3);color:var(--text)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.875rem}
+.divider-or{display:flex;align-items:center;gap:.875rem;margin:1rem 0;color:var(--text3);font-size:.8rem}
+.divider-or::before,.divider-or::after{content:'';flex:1;height:1px;background:var(--border)}
+.fswitch{text-align:center;font-size:.82rem;color:var(--text2);margin-top:1rem}
+.fswitch a{color:var(--pur2);cursor:pointer;text-decoration:underline}
+
+/* ── INFO BOX ── */
+.info-box{border-radius:var(--r);padding:1rem 1.1rem;font-size:.82rem;margin-bottom:1.25rem;line-height:1.55}
+.info-purple{background:rgba(124,92,252,.08);border:1px solid rgba(124,92,252,.22);color:var(--text2)}
+.info-green{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:var(--text2)}
+.info-gold{background:rgba(246,201,14,.07);border:1px solid rgba(246,201,14,.22);color:var(--text2)}
+.info-red{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.22);color:var(--text2)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--card2);border:1px solid var(--border2);border-radius:var(--r2);padding:1rem 1.4rem;font-size:.875rem;z-index:9999;transform:translateY(120px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);max-width:340px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{border-color:rgba(34,197,94,.4);color:var(--green2)}
+.toast.err{border-color:rgba(239,68,68,.4);color:var(--red2)}
+.toast.info{border-color:rgba(124,92,252,.4);color:var(--pur3)}
+
+/* ── AVATAR ── */
+.av{border-radius:50%;background:linear-gradient(135deg,var(--pur),#ec4899);display:flex;align-items:center;justify-content:center;font-weight:600;color:#fff;flex-shrink:0}
+.av-sm{width:34px;height:34px;font-size:.8rem}
+.av-md{width:46px;height:46px;font-size:.95rem}
+.av-lg{width:64px;height:64px;font-size:1.3rem}
+
+/* ══════════════════════════════════════
+   CHECKOUT PAGES
+══════════════════════════════════════ */
+
+/* ── CART PAGE ── */
+.cart-layout{display:grid;grid-template-columns:1fr 360px;gap:2rem;max-width:1100px;margin:0 auto;padding:2.5rem 2rem}
+@media(max-width:860px){.cart-layout{grid-template-columns:1fr}}
+.cart-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r2)}
+.cart-panel-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cart-panel-head h3{font-family:var(--font-h);font-size:1.1rem;font-weight:500}
+.cart-item{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;gap:1rem;align-items:flex-start}
+.cart-item:last-child{border-bottom:none}
+.cart-item-thumb{width:80px;height:60px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+.cart-item-info{flex:1}
+.cart-item-info h4{font-size:.9rem;font-weight:500;margin-bottom:.2rem;line-height:1.3}
+.cart-item-info p{font-size:.75rem;color:var(--text2)}
+.cart-item-right{text-align:right;flex-shrink:0}
+.cart-item-price{font-family:var(--font-h);font-size:1.1rem;font-weight:700;color:var(--gold)}
+.cart-item-orig{font-size:.75rem;color:var(--text3);text-decoration:line-through}
+
+/* ORDER SUMMARY */
+.summary-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:1.5rem;position:sticky;top:86px;height:fit-content}
+.summary-panel h3{font-family:var(--font-h);font-size:1.1rem;font-weight:500;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.sum-row{display:flex;justify-content:space-between;font-size:.875rem;margin-bottom:.65rem}
+.sum-row.total{font-size:1rem;font-weight:600;padding-top:.875rem;border-top:1px solid var(--border);margin-top:.875rem;color:var(--text)}
+.sum-row .label{color:var(--text2)}
+.sum-row .val-gold{color:var(--gold);font-weight:600}
+.sum-row .val-green{color:var(--green);font-weight:600}
+.coupon-row{display:flex;gap:.5rem;margin-bottom:1.25rem}
+.coupon-row input{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--r);padding:9px 12px;font-size:.82rem;font-family:var(--font-b)}
+.coupon-row input:focus{outline:none;border-color:var(--pur)}
+.coupon-row input::placeholder{color:var(--text3)}
+.guarantees{margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border)}
+.guarantee{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--text3);margin-bottom:.4rem}
+
+/* ── CHECKOUT STEPPER ── */
+.checkout-wrap{max-width:1060px;margin:0 auto;padding:2.5rem 2rem}
+.stepper{display:flex;align-items:center;gap:0;margin-bottom:3rem;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.step{flex:1;display:flex;align-items:center;gap:.75rem;padding:1rem 1.5rem;position:relative;transition:all .3s}
+.step.done{background:rgba(34,197,94,.06)}
+.step.active{background:rgba(124,92,252,.08)}
+.step:not(:last-child)::after{content:'›';position:absolute;right:-1px;font-size:1.4rem;color:var(--text3);z-index:1}
+.step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:600;flex-shrink:0;transition:all .3s}
+.step.pending .step-num{background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
+.step.active .step-num{background:var(--pur);color:#fff}
+.step.done .step-num{background:var(--green);color:#fff}
+.step-info{}
+.step-info .slbl{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.step-info .stitle{font-size:.875rem;font-weight:500}
+.step.pending .stitle{color:var(--text3)}
+.step.active .stitle{color:var(--pur3)}
+.step.done .stitle{color:var(--green2)}
+
+/* CHECKOUT GRID */
+.co-grid{display:grid;grid-template-columns:1fr 340px;gap:2rem}
+@media(max-width:860px){.co-grid{grid-template-columns:1fr}}
+
+/* ADDRESS STEP */
+.co-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:1.75rem;margin-bottom:1.25rem}
+.co-section h4{font-family:var(--font-h);font-size:1.1rem;font-weight:500;margin-bottom:1.25rem;padding-bottom:.875rem;border-bottom:1px solid var(--border)}
+
+/* PAYMENT STEP */
+.pay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem}
+.pay-method{background:var(--bg3);border:2px solid var(--border);border-radius:var(--r);padding:.875rem;text-align:center;cursor:pointer;transition:all .2s}
+.pay-method:hover{border-color:var(--border2)}
+.pay-method.selected{border-color:var(--pur);background:rgba(124,92,252,.08)}
+.pay-method-icon{font-size:1.5rem;margin-bottom:.3rem}
+.pay-method-label{font-size:.75rem;color:var(--text2)}
+.pay-method.selected .pay-method-label{color:var(--pur3)}
+.card-display{background:linear-gradient(135deg,#1a1040,#2d1b69);border-radius:var(--r2);padding:1.5rem;margin-bottom:1.25rem;position:relative;overflow:hidden;min-height:140px}
+.card-display::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(124,92,252,.2)}
+.card-chip{width:36px;height:28px;background:linear-gradient(135deg,#d4af37,#f6c90e);border-radius:5px;margin-bottom:1rem;position:relative;z-index:1}
+.card-number-display{font-family:monospace;font-size:1.2rem;letter-spacing:.12em;margin-bottom:.875rem;position:relative;z-index:1}
+.card-row{display:flex;justify-content:space-between;position:relative;z-index:1}
+.card-row .clabel{font-size:.65rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem}
+.card-row .cval{font-size:.82rem;color:#fff}
+.upi-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:1rem;margin-bottom:1rem}
+.upi-apps{display:flex;gap:.75rem;margin-top:.875rem;flex-wrap:wrap}
+.upi-app{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:.5rem .875rem;font-size:.78rem;cursor:pointer;transition:all .2s;color:var(--text2)}
+.upi-app:hover,.upi-app.sel{border-color:var(--pur);color:var(--pur3);background:rgba(124,92,252,.08)}
+.netbank-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1rem}
+.bank-opt{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.75rem .5rem;text-align:center;cursor:pointer;font-size:.75rem;color:var(--text2);transition:all .2s}
+.bank-opt:hover,.bank-opt.sel{border-color:var(--pur);color:var(--pur3);background:rgba(124,92,252,.08)}
+.bank-icon{font-size:1.3rem;margin-bottom:.3rem}
+
+/* ── CONFIRMATION PAGE ── */
+.confirm-wrap{max-width:700px;margin:0 auto;padding:4rem 2rem;text-align:center}
+.confirm-icon{width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,.12);border:2px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.75rem;animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.3)}50%{box-shadow:0 0 0 16px rgba(34,197,94,0)}}
+.confirm-wrap h2{font-family:var(--font-h);font-size:2.2rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:.75rem}
+.confirm-wrap p{color:var(--text2);font-size:.95rem;line-height:1.7;margin-bottom:2rem}
+.order-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:1.5rem;text-align:left;margin-bottom:2rem}
+.order-card h4{font-family:var(--font-h);font-weight:500;margin-bottom:1rem;padding-bottom:.875rem;border-bottom:1px solid var(--border)}
+.order-row{display:flex;justify-content:space-between;font-size:.875rem;padding:.5rem 0;border-bottom:1px solid var(--border)}
+.order-row:last-child{border-bottom:none}
+.order-row .k{color:var(--text2)}
+.order-row .v{font-weight:500}
+.confirm-courses{display:grid;gap:.75rem;margin-bottom:2rem}
+.confirm-course{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1rem;display:flex;align-items:center;gap:1rem}
+.confirm-course-icon{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.confirm-course-info h4{font-size:.9rem;font-weight:500;margin-bottom:.2rem}
+.confirm-course-info p{font-size:.75rem;color:var(--text2)}
+.next-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:.875rem;margin-bottom:2rem}
+.next-step{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1rem;text-align:center}
+.next-step-icon{font-size:1.5rem;margin-bottom:.5rem}
+.next-step h4{font-size:.82rem;font-weight:600;margin-bottom:.3rem}
+.next-step p{font-size:.72rem;color:var(--text2);line-height:1.5}
+
+/* ── ACCOUNT PAGE ── */
+.acc-layout{display:grid;grid-template-columns:240px 1fr;gap:2rem;max-width:1180px;margin:0 auto;padding:2.5rem 2rem}
+@media(max-width:760px){.acc-layout{grid-template-columns:1fr}}
+.acc-sidebar{display:flex;flex-direction:column;gap:.25rem}
+.acc-profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:1.5rem;text-align:center;margin-bottom:1.25rem}
+.acc-profile-card h4{font-size:.95rem;font-weight:600;margin:.625rem 0 .2rem}
+.acc-profile-card p{font-size:.75rem;color:var(--text3)}
+.acc-profile-card .member-since{font-size:.68rem;background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.22);color:var(--pur3);padding:3px 10px;border-radius:100px;display:inline-block;margin-top:.5rem}
+.side-item{padding:10px 14px;border-radius:10px;font-size:.875rem;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .2s}
+.side-item:hover,.side-item.on{background:var(--card);color:var(--text)}
+.side-item.on{color:var(--pur3)}
+.acc-panel{display:none}
+.acc-panel.on{display:block;animation:fadeIn .2s ease}
+
+/* LEARNING CARD */
+.lc{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:1.25rem;display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem;transition:all .2s}
+.lc:hover{border-color:var(--border2)}
+.lc-icon{width:60px;height:60px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0}
+.lc-info{flex:1}
+.lc-info h4{font-size:.925rem;font-weight:600;margin-bottom:.2rem}
+.lc-info .meta{font-size:.75rem;color:var(--text2);margin-bottom:.7rem}
+.prog-bar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:.35rem}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--pur),var(--pur2));border-radius:3px;transition:width .6s ease}
+.prog-lbl{font-size:.72rem;color:var(--text3)}
+.lc-actions{display:flex;flex-direction:column;gap:.5rem;flex-shrink:0}
+
+/* ORDER HISTORY TABLE */
+.order-table{width:100%;border-collapse:collapse}
+.order-table th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);padding:.75rem 1rem;border-bottom:1px solid var(--border);font-weight:600}
+.order-table td{padding:.875rem 1rem;border-bottom:1px solid var(--border);font-size:.85rem;vertical-align:middle}
+.order-table tr:last-child td{border-bottom:none}
+.order-table tr:hover td{background:rgba(255,255,255,.015)}
+.status-badge{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:3px 10px;font-size:.7rem;font-weight:600}
+.status-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--green)}
+.status-pending{background:rgba(246,201,14,.1);border:1px solid rgba(246,201,14,.25);color:var(--gold)}
+.status-refund{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+
+/* SETTINGS */
+.settings-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:1.75rem;max-width:520px;margin-bottom:1.25rem}
+.settings-card h4{font-family:var(--font-h);font-size:1rem;font-weight:500;margin-bottom:1.25rem;padding-bottom:.875rem;border-bottom:1px solid var(--border)}
+.danger-zone{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.2);border-radius:var(--r2);padding:1.5rem;max-width:520px}
+.danger-zone h4{color:var(--red);font-size:.95rem;font-weight:600;margin-bottom:.5rem}
+.danger-zone p{font-size:.82rem;color:var(--text2);margin-bottom:1rem;line-height:1.6}
+
+/* VIDEO PAGE */
+.video-wrap{display:grid;grid-template-columns:1fr 320px;gap:2rem;max-width:1180px;margin:0 auto;padding:2rem 2rem}
+@media(max-width:860px){.video-wrap{grid-template-columns:1fr}}
+.video-main{}
+.video-player{background:#000;border-radius:var(--r2);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:1rem}
+.vp-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;background:linear-gradient(135deg,rgba(124,92,252,.15),rgba(236,72,153,.1))}
+.play-circle{width:72px;height:72px;border-radius:50%;background:rgba(124,92,252,.9);display:flex;align-items:center;justify-content:center;font-size:1.6rem;cursor:pointer;border:none;transition:transform .2s}
+.play-circle:hover{transform:scale(1.1)}
+.vp-label{font-size:.78rem;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase}
+.video-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.875rem;margin-bottom:1.25rem}
+.video-title{font-family:var(--font-h);font-size:1.3rem;font-weight:500}
+.lesson-list{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.lesson-list-head{padding:1rem 1.25rem;border-bottom:1px solid var(--border);font-size:.82rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+.lesson-item{padding:.875rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:background .2s;font-size:.85rem}
+.lesson-item:last-child{border-bottom:none}
+.lesson-item:hover{background:rgba(255,255,255,.03)}
+.lesson-item.active{background:rgba(124,92,252,.08)}
+.lesson-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0}
+.lesson-dot.done{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+.lesson-dot.current{background:var(--pur);color:#fff}
+.lesson-dot.pending{background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
+.lesson-name{flex:1}
+.lesson-dur{font-size:.72rem;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║               NAV BAR                   ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<nav class="nav">
+  <div class="logo" onclick="goPage('home')">Learn<span>Forge</span></div>
+  <div class="nav-center">
+    <button class="nav-link" onclick="goPage('home')">Courses</button>
+    <button class="nav-link" id="nl-learning" style="display:none" onclick="goPage('account')">My Learning</button>
+    <button class="nav-link" id="nl-orders" style="display:none" onclick="goPage('account');accPanel('orders')">Orders</button>
+  </div>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="goPage('cart')" id="cartBtn">
+      🛒 Cart
+      <span class="cart-count" id="cartCount" style="display:none">0</span>
+    </button>
+    <div id="nav-guest" style="display:flex;gap:.625rem">
+      <button class="btn btn-outline btn-sm" onclick="openM('m-login')">Sign In</button>
+      <button class="btn btn-primary btn-sm" onclick="openM('m-signup')">Join Free</button>
+    </div>
+    <div id="nav-user" style="display:none;align-items:center;gap:.875rem">
+      <div class="av av-sm" id="navAv">U</div>
+      <span id="navName" style="font-size:.85rem;color:var(--text2)"></span>
+      <button class="btn btn-outline btn-sm" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║           HOME / CATALOG                ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="page active" id="p-home">
+  <div class="hero">
+    <div class="hero-pill">✦ 240+ Expert-led workshops · Lifetime access</div>
+    <h1>Learn skills that<br/>shape your <span class="italic">future</span></h1>
+    <p class="hero-sub">Recorded workshops by industry experts. Buy once, access forever. Start learning in minutes.</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary btn-lg" onclick="document.getElementById('catalog-sec').scrollIntoView({behavior:'smooth'})">Explore Courses</button>
+      <button class="btn btn-outline btn-lg" onclick="openM('m-signup')">Create Free Account</button>
+    </div>
+    <div class="hero-strip">
+      <div class="strip-item"><div class="strip-num">240+</div><div class="strip-lbl">Courses</div></div>
+      <div class="strip-item"><div class="strip-num">48k</div><div class="strip-lbl">Learners</div></div>
+      <div class="strip-item"><div class="strip-num">98%</div><div class="strip-lbl">Satisfaction</div></div>
+      <div class="strip-item"><div class="strip-num">∞</div><div class="strip-lbl">Lifetime Access</div></div>
+    </div>
+  </div>
+
+  <div class="feat-grid">
+    <div class="feat-card"><div class="feat-icon">🎥</div><h3>Recorded Sessions</h3><p>HD recorded workshops — watch anytime, pause, rewind, re-watch unlimited times.</p></div>
+    <div class="feat-card"><div class="feat-icon">🔓</div><h3>Buy Once, Own Forever</h3><p>No subscriptions. One-time purchase gives you lifetime access including all future updates.</p></div>
+    <div class="feat-card"><div class="feat-icon">📱</div><h3>Learn Anywhere</h3><p>Access from any device. Your progress automatically syncs across desktop and mobile.</p></div>
+    <div class="feat-card"><div class="feat-icon">🏆</div><h3>Certificates</h3><p>Earn completion certificates. Download and share on LinkedIn to showcase your new skills.</p></div>
+    <div class="feat-card"><div class="feat-icon">💬</div><h3>Community Access</h3><p>Join exclusive learner communities for every course. Ask questions, share projects, network.</p></div>
+  </div>
+
+  <div class="section" id="catalog-sec">
+    <div class="sec-head">
+      <div><h2>All Courses & Workshops</h2><p>Handpicked by industry experts</p></div>
+    </div>
+    <div class="toolbar">
+      <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search courses, topics…" id="search-in" oninput="renderGrid()"/></div>
+      <div class="filter-pills" id="filter-pills"></div>
+    </div>
+    <div class="cg" id="course-grid"></div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║               CART PAGE                 ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="page" id="p-cart">
+  <div style="max-width:1100px;margin:0 auto;padding:2.5rem 2rem 1rem">
+    <h2 style="font-family:var(--font-h);font-size:1.8rem;font-weight:500;margin-bottom:.3rem">Your Cart</h2>
+    <p style="color:var(--text2);font-size:.875rem" id="cart-subtitle"></p>
+  </div>
+  <div class="cart-layout">
+    <!-- Cart items -->
+    <div>
+      <div class="cart-panel" id="cart-items-panel"></div>
+      <div style="margin-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.875rem">
+        <button class="btn btn-outline btn-sm" onclick="goPage('home')">← Continue Shopping</button>
+        <button class="btn btn-danger btn-sm" onclick="clearCart()">🗑 Clear Cart</button>
+      </div>
+    </div>
+    <!-- Order Summary -->
+    <div>
+      <div class="summary-panel">
+        <h3>Order Summary</h3>
+        <div class="sum-row"><span class="label">Subtotal (<span id="sum-count">0</span> items)</span><span id="sum-subtotal">₹0</span></div>
+        <div class="sum-row"><span class="label">You save</span><span class="val-green" id="sum-save">₹0</span></div>
+        <div class="sum-row"><span class="label">GST (18%)</span><span id="sum-gst">₹0</span></div>
+        <div class="coupon-row">
+          <input type="text" placeholder="Enter coupon code" id="coupon-in"/>
+          <button class="btn btn-outline btn-sm" onclick="applyCoupon()">Apply</button>
+        </div>
+        <div id="coupon-msg" style="font-size:.75rem;margin-bottom:.875rem;display:none"></div>
+        <div class="sum-row total"><span>Total</span><span class="val-gold" id="sum-total">₹0</span></div>
+        <button class="btn btn-gold btn-full" style="margin-top:1rem;padding:14px;font-size:.95rem" onclick="proceedCheckout()">Proceed to Checkout →</button>
+        <div class="guarantees">
+          <div class="guarantee">✅ 30-day money-back guarantee</div>
+          <div class="guarantee">🔒 Secure & encrypted checkout</div>
+          <div class="guarantee">♾️ Lifetime access after purchase</div>
+          <div class="guarantee">📜 Certificate of completion</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║          CHECKOUT PAGE                  ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="page" id="p-checkout">
+  <div class="checkout-wrap">
+    <h2 style="font-family:var(--font-h);font-size:1.8rem;font-weight:500;margin-bottom:2rem">Secure Checkout</h2>
+
+    <!-- Stepper -->
+    <div class="stepper" id="stepper">
+      <div class="step active" id="st1">
+        <div class="step-num">1</div>
+        <div class="step-info"><div class="slbl">Step 1</div><div class="stitle">Details</div></div>
+      </div>
+      <div class="step pending" id="st2">
+        <div class="step-num">2</div>
+        <div class="step-info"><div class="slbl">Step 2</div><div class="stitle">Payment</div></div>
+      </div>
+      <div class="step pending" id="st3">
+        <div class="step-num">3</div>
+        <div class="step-info"><div class="slbl">Step 3</div><div class="stitle">Review</div></div>
+      </div>
+    </div>
+
+    <div class="co-grid">
+      <!-- LEFT: Steps -->
+      <div id="co-steps">
+
+        <!-- STEP 1: Details -->
+        <div id="co-step1">
+          <div class="co-section">
+            <h4>Personal Details</h4>
+            <div class="row2">
+              <div class="fg"><label>First Name</label><input type="text" id="co-fname" placeholder="Rahul"/></div>
+              <div class="fg"><label>Last Name</label><input type="text" id="co-lname" placeholder="Sharma"/></div>
+            </div>
+            <div class="fg"><label>Email Address</label><input type="email" id="co-email" placeholder="rahul@email.com"/><div class="hint">Order confirmation & course access will be sent here</div></div>
+            <div class="fg"><label>Phone Number</label><input type="tel" id="co-phone" placeholder="+91 98765 43210"/></div>
+          </div>
+          <div class="co-section">
+            <h4>Billing Address</h4>
+            <div class="fg"><label>Address Line 1</label><input type="text" id="co-addr1" placeholder="Flat / House No., Building Name"/></div>
+            <div class="fg"><label>Address Line 2 (optional)</label><input type="text" id="co-addr2" placeholder="Street, Area, Landmark"/></div>
+            <div class="row2">
+              <div class="fg"><label>City</label><input type="text" id="co-city" placeholder="Mumbai"/></div>
+              <div class="fg"><label>State</label>
+                <select id="co-state">
+                  <option value="">Select state</option>
+                  <option>Andhra Pradesh</option><option>Delhi</option><option>Gujarat</option>
+                  <option>Karnataka</option><option>Kerala</option><option>Maharashtra</option>
+                  <option>Punjab</option><option>Rajasthan</option><option>Tamil Nadu</option>
+                  <option>Telangana</option><option>Uttar Pradesh</option><option>West Bengal</option>
+                </select>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="fg"><label>PIN Code</label><input type="text" id="co-pin" placeholder="400001" maxlength="6"/></div>
+              <div class="fg"><label>Country</label><input type="text" value="India" readonly style="opacity:.6"/></div>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="padding:13px 36px;font-size:.95rem" onclick="coStep2()">Continue to Payment →</button>
+        </div>
+
+        <!-- STEP 2: Payment -->
+        <div id="co-step2" style="display:none">
+          <div class="co-section">
+            <h4>Choose Payment Method</h4>
+            <div class="pay-methods">
+              <div class="pay-method selected" onclick="selectPay('card',this)" id="pm-card">
+                <div class="pay-method-icon">💳</div>
+                <div class="pay-method-label">Credit / Debit Card</div>
+              </div>
+              <div class="pay-method" onclick="selectPay('upi',this)" id="pm-upi">
+                <div class="pay-method-icon">📲</div>
+                <div class="pay-method-label">UPI</div>
+              </div>
+              <div class="pay-method" onclick="selectPay('netbank',this)" id="pm-netbank">
+                <div class="pay-method-icon">🏦</div>
+                <div class="pay-method-label">Net Banking</div>
+              </div>
+            </div>
+
+            <!-- Card Form -->
+            <div id="pay-card">
+              <div class="info-purple" style="font-size:.8rem">🧪 <strong style="color:var(--pur3)">Demo mode</strong> — enter any fake card number (12+ digits). No real charge.</div>
+              <!-- Card Visual -->
+              <div class="card-display">
+                <div class="card-chip"></div>
+                <div class="card-number-display" id="card-num-display">•••• •••• •••• ••••</div>
+                <div class="card-row">
+                  <div><div class="clabel">Card Holder</div><div class="cval" id="card-name-display">YOUR NAME</div></div>
+                  <div><div class="clabel">Expires</div><div class="cval" id="card-exp-display">MM/YY</div></div>
+                </div>
+              </div>
+              <div class="fg"><label>Card Number</label><input type="text" id="cc-num" placeholder="4242 4242 4242 4242" maxlength="19" oninput="fmtCard(this)"/></div>
+              <div class="fg"><label>Name on Card</label><input type="text" id="cc-name" placeholder="Rahul Sharma" oninput="document.getElementById('card-name-display').textContent=this.value||'YOUR NAME'"/></div>
+              <div class="row2">
+                <div class="fg"><label>Expiry Date</label><input type="text" id="cc-exp" placeholder="MM/YY" maxlength="5" oninput="fmtExp(this)"/></div>
+                <div class="fg"><label>CVV</label><input type="text" id="cc-cvv" placeholder="123" maxlength="3"/></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:.875rem;margin-top:.5rem">
+                <input type="checkbox" id="save-card" style="width:16px;height:16px;accent-color:var(--pur)"/>
+                <label for="save-card" style="font-size:.82rem;color:var(--text2)">Save card for future purchases</label>
+              </div>
+            </div>
+
+            <!-- UPI Form -->
+            <div id="pay-upi" style="display:none">
+              <div class="info-purple" style="font-size:.8rem">🧪 <strong style="color:var(--pur3)">Demo mode</strong> — enter any UPI ID or select an app. No real charge.</div>
+              <div class="upi-box">
+                <div class="fg" style="margin-bottom:.5rem"><label>UPI ID</label><input type="text" id="upi-id" placeholder="yourname@upi"/></div>
+                <div style="font-size:.78rem;color:var(--text3);margin-bottom:.5rem">Or pay using</div>
+                <div class="upi-apps">
+                  <div class="upi-app" onclick="selUpi(this)">📱 GPay</div>
+                  <div class="upi-app" onclick="selUpi(this)">🔵 PhonePe</div>
+                  <div class="upi-app" onclick="selUpi(this)">💜 Paytm</div>
+                  <div class="upi-app" onclick="selUpi(this)">🟠 BHIM</div>
+                  <div class="upi-app" onclick="selUpi(this)">🏦 CRED</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Net Banking Form -->
+            <div id="pay-netbank" style="display:none">
+              <div class="info-purple" style="font-size:.8rem">🧪 <strong style="color:var(--pur3)">Demo mode</strong> — select your bank. No real transaction occurs.</div>
+              <div class="netbank-grid" id="bank-grid">
+                <div class="bank-opt" onclick="selBank(this)"><div class="bank-icon">🏦</div>SBI</div>
+                <div class="bank-opt" onclick="selBank(this)"><div class="bank-icon">🔵</div>HDFC</div>
+                <div class="bank-opt" onclick="selBank(this)"><div class="bank-icon">🟠</div>ICICI</div>
+                <div class="bank-opt" onclick="selBank(this)"><div class="bank-icon">🟢</div>Axis</div>
+                <div class="bank-opt" onclick="selBank(this)"><div class="bank-icon">⚪</div>Kotak</div>
+                <div class="bank-opt" onclick="selBank(this)"><div class="bank-icon">🔴</div>PNB</div>
+                <div class="bank-opt" onclick="selBank(this)"><div class="bank-icon">🟡</div>BOI</div>
+                <div class="bank-opt" onclick="selBank(this)"><div class="bank-icon">🏛</div>Other</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:.875rem;flex-wrap:wrap">
+            <button class="btn btn-outline" onclick="coStep1Back()">← Back</button>
+            <button class="btn btn-primary" style="padding:13px 36px;font-size:.95rem" onclick="coStep3()">Review Order →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Review -->
+        <div id="co-step3" style="display:none">
+          <div class="co-section">
+            <h4>Review Your Order</h4>
+            <div id="review-items"></div>
+          </div>
+          <div class="co-section">
+            <h4>Billing Details</h4>
+            <div id="review-billing" style="font-size:.875rem;color:var(--text2);line-height:1.8"></div>
+          </div>
+          <div class="co-section">
+            <h4>Payment Method</h4>
+            <div id="review-payment" style="font-size:.875rem;color:var(--text2)"></div>
+          </div>
+          <div class="info-gold">
+            ✅ By placing this order you agree to our <strong style="color:var(--gold2)">Terms of Service</strong> and <strong style="color:var(--gold2)">Refund Policy</strong>. All courses come with a 30-day money-back guarantee.
+          </div>
+          <div style="display:flex;gap:.875rem;flex-wrap:wrap;margin-top:1.25rem">
+            <button class="btn btn-outline" onclick="coStep2Back()">← Back</button>
+            <button class="btn btn-gold" style="padding:14px 40px;font-size:1rem" id="place-order-btn" onclick="placeOrder()">🔒 Place Order & Pay <span id="pay-total-btn"></span></button>
+          </div>
+        </div>
+
+      </div><!-- /co-steps -->
+
+      <!-- RIGHT: Mini summary -->
+      <div>
+        <div class="summary-panel" id="co-summary-panel">
+          <h3>Order Summary</h3>
+          <div id="co-mini-items"></div>
+          <div class="sum-row" style="margin-top:.875rem"><span class="label">Subtotal</span><span id="co-sub"></span></div>
+          <div class="sum-row"><span class="label">Discount</span><span class="val-green" id="co-disc"></span></div>
+          <div class="sum-row"><span class="label">GST (18%)</span><span id="co-gst"></span></div>
+          <div class="sum-row total"><span>Total</span><span class="val-gold" id="co-total2"></span></div>
+          <div class="guarantees" style="margin-top:.875rem">
+            <div class="guarantee">🔒 SSL encrypted checkout</div>
+            <div class="guarantee">♾️ Lifetime access guaranteed</div>
+            <div class="guarantee">💳 PCI-DSS compliant payment</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /co-grid -->
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║         CONFIRMATION PAGE               ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="page" id="p-confirm">
+  <div class="confirm-wrap">
+    <div class="confirm-icon">✅</div>
+    <h2>Order Confirmed!</h2>
+    <p>Thank you for your purchase! Your courses are now unlocked and ready to start. A confirmation email has been sent to <strong id="confirm-email" style="color:var(--pur3)">you</strong>.</p>
+
+    <div class="order-card">
+      <h4>Order Details</h4>
+      <div class="order-row"><span class="k">Order ID</span><span class="v" id="confirm-oid" style="color:var(--pur3)"></span></div>
+      <div class="order-row"><span class="k">Date</span><span class="v" id="confirm-date"></span></div>
+      <div class="order-row"><span class="k">Payment Method</span><span class="v" id="confirm-pay"></span></div>
+      <div class="order-row"><span class="k">Amount Paid</span><span class="v" style="color:var(--gold)" id="confirm-amount"></span></div>
+      <div class="order-row"><span class="k">Status</span><span class="v"><span class="status-badge status-success">✓ Paid</span></span></div>
+    </div>
+
+    <h3 style="font-family:var(--font-h);font-weight:500;margin-bottom:1rem;font-size:1.2rem">Courses Unlocked</h3>
+    <div class="confirm-courses" id="confirm-courses"></div>
+
+    <h3 style="font-family:var(--font-h);font-weight:500;margin-bottom:1rem;font-size:1.2rem">What's Next?</h3>
+    <div class="next-steps">
+      <div class="next-step"><div class="next-step-icon">📧</div><h4>Check Email</h4><p>Confirmation & receipt sent to your inbox</p></div>
+      <div class="next-step"><div class="next-step-icon">▶️</div><h4>Start Learning</h4><p>Access your courses anytime from My Learning</p></div>
+      <div class="next-step"><div class="next-step-icon">🏆</div><h4>Earn Certificate</h4><p>Complete courses to earn shareable certificates</p></div>
+    </div>
+
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary btn-lg" onclick="goPage('account')">Go to My Learning →</button>
+      <button class="btn btn-outline btn-lg" onclick="goPage('home')">Browse More Courses</button>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║           ACCOUNT PAGE                  ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="page" id="p-account">
+  <div class="acc-layout">
+    <!-- Sidebar -->
+    <div class="acc-sidebar">
+      <div class="acc-profile-card">
+        <div class="av av-lg" style="margin:0 auto" id="accAv">U</div>
+        <h4 id="accName">User</h4>
+        <p id="accEmail">user@email.com</p>
+        <span class="member-since" id="accSince">Member since Jan 2025</span>
+      </div>
+      <div class="side-item on" onclick="accPanel('learning',this)">📚 My Learning</div>
+      <div class="side-item" onclick="accPanel('orders',this)" id="si-orders">🧾 Order History</div>
+      <div class="side-item" onclick="accPanel('wishlist',this)">❤️ Wishlist</div>
+      <div class="side-item" onclick="accPanel('settings',this)">⚙️ Settings</div>
+      <div style="margin-top:1.5rem">
+        <button class="btn btn-outline btn-full" onclick="doLogout()">Sign out</button>
+      </div>
+    </div>
+
+    <!-- Panels -->
+    <div>
+
+      <!-- MY LEARNING -->
+      <div class="acc-panel on" id="ap-learning">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem">
+          <div>
+            <h2 style="font-family:var(--font-h);font-size:1.75rem;font-weight:500">My Learning</h2>
+            <p style="font-size:.85rem;color:var(--text2);margin-top:.3rem" id="acc-learning-sub">0 courses purchased</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="goPage('home')">+ Browse More</button>
+        </div>
+        <div id="acc-courses-list"></div>
+      </div>
+
+      <!-- ORDER HISTORY -->
+      <div class="acc-panel" id="ap-orders">
+        <h2 style="font-family:var(--font-h);font-size:1.75rem;font-weight:500;margin-bottom:1.75rem">Order History</h2>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden">
+          <table class="order-table" style="width:100%">
+            <thead><tr>
+              <th>Order ID</th><th>Course(s)</th><th>Date</th><th>Amount</th><th>Status</th><th>Invoice</th>
+            </tr></thead>
+            <tbody id="orders-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- WISHLIST -->
+      <div class="acc-panel" id="ap-wishlist">
+        <h2 style="font-family:var(--font-h);font-size:1.75rem;font-weight:500;margin-bottom:1.75rem">Wishlist</h2>
+        <div class="cg" id="wishlist-grid"></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="acc-panel" id="ap-settings">
+        <h2 style="font-family:var(--font-h);font-size:1.75rem;font-weight:500;margin-bottom:1.75rem">Account Settings</h2>
+        <div class="settings-card">
+          <h4>Profile Information</h4>
+          <div class="row2">
+            <div class="fg"><label>First Name</label><input type="text" id="set-fname"/></div>
+            <div class="fg"><label>Last Name</label><input type="text" id="set-lname"/></div>
+          </div>
+          <div class="fg"><label>Email</label><input type="email" id="set-email"/></div>
+          <div class="fg"><label>Phone</label><input type="tel" id="set-phone" placeholder="+91 98765 43210"/></div>
+          <button class="btn btn-primary" onclick="saveSettings()">Save Profile</button>
+        </div>
+        <div class="settings-card">
+          <h4>Change Password</h4>
+          <div class="fg"><label>Current Password</label><input type="password" id="set-oldpass" placeholder="••••••••"/></div>
+          <div class="fg"><label>New Password</label><input type="password" id="set-newpass" placeholder="••••••••"/></div>
+          <div class="fg"><label>Confirm Password</label><input type="password" id="set-confpass" placeholder="••••••••"/></div>
+          <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+        </div>
+        <div class="danger-zone">
+          <h4>⚠ Danger Zone</h4>
+          <p>Deleting your account is permanent. All your course access, progress, and data will be erased and cannot be recovered.</p>
+          <button class="btn btn-danger" onclick="if(confirm('Delete account? This cannot be undone.'))deleteAccount()">Delete My Account</button>
+        </div>
+      </div>
+
+    </div><!-- /panels -->
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║          VIDEO PLAYER PAGE              ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="page" id="p-video">
+  <div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:.875rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.875rem">
+    <div>
+      <div style="font-size:.72rem;color:var(--pur2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.2rem" id="vid-cat"></div>
+      <div style="font-family:var(--font-h);font-size:1.1rem;font-weight:500" id="vid-course-title"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.875rem">
+      <div class="prog-bar" style="width:140px"><div class="prog-fill" id="vid-prog-bar" style="width:0%"></div></div>
+      <span style="font-size:.78rem;color:var(--text2)" id="vid-prog-label">0% done</span>
+      <button class="btn btn-outline btn-sm" onclick="goPage('account')">← Dashboard</button>
+    </div>
+  </div>
+  <div class="video-wrap">
+    <div class="video-main">
+      <div class="video-player">
+        <div class="vp-overlay" id="vp-overlay">
+          <button class="play-circle" onclick="togglePlay()" id="play-btn">▶</button>
+          <div class="vp-label" id="vp-label">Click to play</div>
+        </div>
+      </div>
+      <div class="video-controls">
+        <div>
+          <div style="font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.2rem" id="vid-lesson-num"></div>
+          <div class="video-title" id="vid-lesson-title"></div>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="prevLesson()">⬅ Prev</button>
+          <button class="btn btn-green btn-sm" onclick="markDone()">✓ Mark Complete</button>
+          <button class="btn btn-primary btn-sm" onclick="nextLesson()">Next ➡</button>
+        </div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:1.25rem">
+        <h4 style="font-size:.875rem;font-weight:600;margin-bottom:.5rem">About this lesson</h4>
+        <p style="font-size:.83rem;color:var(--text2);line-height:1.65" id="vid-lesson-desc">This lesson covers the fundamentals you need to get started. Follow along with the instructor and complete the exercises at the end.</p>
+      </div>
+    </div>
+    <!-- Lesson list -->
+    <div>
+      <div class="lesson-list">
+        <div class="lesson-list-head">Course Content · <span id="vid-total-lessons"></span> lessons</div>
+        <div id="lesson-list-items"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║             COURSE DETAIL MODAL         ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<div class="overlay" id="m-course">
+  <div class="modal modal-lg">
+    <button class="mclose" onclick="closeM('m-course')">×</button>
+    <div id="m-course-body"></div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="overlay" id="m-login">
+  <div class="modal modal-sm">
+    <button class="mclose" onclick="closeM('m-login')">×</button>
+    <div class="mhead"><h3>Welcome back</h3><p>Sign in to access your courses</p></div>
+    <div class="mbody">
+      <div class="info-purple">💡 <strong style="color:var(--pur3)">Try demo:</strong> Click "Login as Demo User" — no email needed!</div>
+      <div class="fg"><label>Email</label><input type="email" id="l-email" placeholder="you@email.com"/></div>
+      <div class="fg"><label>Password</label><input type="password" id="l-pass" placeholder="Your password"/></div>
+      <button class="btn btn-primary btn-full" style="padding:12px" onclick="doLogin()">Sign In</button>
+      <div class="divider-or">or</div>
+      <button class="btn btn-outline btn-full" style="padding:12px" onclick="demoLogin()">🚀 Login as Demo User</button>
+      <div class="fswitch">No account? <a onclick="swModal('m-login','m-signup')">Create one free</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="overlay" id="m-signup">
+  <div class="modal modal-sm">
+    <button class="mclose" onclick="closeM('m-signup')">×</button>
+    <div class="mhead"><h3>Create Account</h3><p>Join free — start learning today</p></div>
+    <div class="mbody">
+      <div class="info-green">✅ Use <strong style="color:var(--green2)">any name, email & password</strong> — saved in browser only, no real account needed.</div>
+      <div class="row2">
+        <div class="fg"><label>First Name</label><input type="text" id="s-fname" placeholder="Rahul"/></div>
+        <div class="fg"><label>Last Name</label><input type="text" id="s-lname" placeholder="Sharma"/></div>
+      </div>
+      <div class="fg"><label>Email</label><input type="email" id="s-email" placeholder="test@test.com"/></div>
+      <div class="fg"><label>Password</label><input type="password" id="s-pass" placeholder="Min 4 characters"/><div class="hint">Any password works in demo mode</div></div>
+      <button class="btn btn-primary btn-full" style="padding:12px" onclick="doSignup()">Create Account →</button>
+      <div class="fswitch">Already have an account? <a onclick="swModal('m-signup','m-login')">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║              JAVASCRIPT                 ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<script>
+// ════════════════════════ DATA ════════════════════════
+const COURSES=[
+  {id:1,cat:'Design',emoji:'🎨',bg:'linear-gradient(135deg,#1a0d3d,#2d1b69)',title:'UI/UX Masterclass',desc:'From wireframes to pixel-perfect designs. Learn Figma, design systems, and user research used by top product teams globally.',price:1999,orig:3999,duration:'12h 30m',lessons:28,level:'All levels',instructor:'Priya Sharma',rating:4.9,students:2840,
+    syllabus:['Design thinking fundamentals','Figma interface & shortcuts','Component libraries & design systems','User research methods','Wireframing & prototyping','Usability testing','Handoff to developers','Case study: redesign a product']},
+  {id:2,cat:'Development',emoji:'⚡',bg:'linear-gradient(135deg,#0a1a3d,#1a3a7a)',title:'React & Next.js Pro',desc:'Build production-grade web apps with React 18, Next.js 14, TypeScript, and modern tooling. Real projects, real patterns.',price:2499,orig:4999,duration:'18h 45m',lessons:42,level:'Intermediate',instructor:'Arjun Mehta',rating:4.8,students:4120,
+    syllabus:['React 18 core concepts','Hooks & state management','Next.js 14 App Router','TypeScript with React','Server components','API routes & server actions','Testing with Jest','Deployment & optimization']},
+  {id:3,cat:'AI/ML',emoji:'🤖',bg:'linear-gradient(135deg,#0a1525,#153a5f)',title:'Machine Learning Bootcamp',desc:'Hands-on ML from scratch. Regression, classification, neural networks, and deploying models with Python.',price:3499,orig:6999,duration:'22h 10m',lessons:55,level:'Beginner friendly',instructor:'Dr. Kavita Rao',rating:4.9,students:3670,
+    syllabus:['Python for ML','Data cleaning & EDA','Regression algorithms','Classification & clustering','Neural networks basics','Deep learning intro','Model tuning & evaluation','Deployment with FastAPI']},
+  {id:4,cat:'Business',emoji:'📊',bg:'linear-gradient(135deg,#1a1000,#3d2800)',title:'Product Management 101',desc:'Learn how top PMs think. Roadmapping, prioritization, stakeholder management, and building products users love.',price:1799,orig:3599,duration:'9h 20m',lessons:24,level:'All levels',instructor:'Rohit Anand',rating:4.7,students:1890,
+    syllabus:['PM role & mindset','User story mapping','OKRs, KPIs & metrics','Prioritization frameworks','Working with engineering','Stakeholder management','Product launch','Growth levers']},
+  {id:5,cat:'Design',emoji:'🎬',bg:'linear-gradient(135deg,#1a0510,#4a0a30)',title:'Motion Design with AE',desc:'Create stunning animations and motion graphics using Adobe After Effects and industry-standard techniques.',price:2199,orig:4399,duration:'14h 55m',lessons:36,level:'Intermediate',instructor:'Sneha Patel',rating:4.8,students:2230,
+    syllabus:['AE interface & workflow','Keyframe animation','Text animations','Logo reveals','Motion tracking','Visual effects','Color grading','Export for web & social']},
+  {id:6,cat:'Development',emoji:'🔐',bg:'linear-gradient(135deg,#001a0a,#003d1a)',title:'Cybersecurity Essentials',desc:'Ethical hacking, penetration testing, network security, and protecting systems. Hands-on labs with real tools.',price:2799,orig:5599,duration:'16h 30m',lessons:38,level:'Intermediate',instructor:'Vikram Singh',rating:4.9,students:1560,
+    syllabus:['Security fundamentals','Network protocols','Web app security (OWASP)','Penetration testing','SQL injection & XSS','Crypto & authentication','CTF challenges','Certification roadmap']},
+  {id:7,cat:'AI/ML',emoji:'💬',bg:'linear-gradient(135deg,#0f0820,#2d1b69)',title:'LLM Engineering',desc:'Build production AI applications with GPT-4, Claude, open-source models, RAG systems, and autonomous agents.',price:3999,orig:7999,duration:'20h 15m',lessons:48,level:'Advanced',instructor:'Dr. Meera Krishnan',rating:5.0,students:980,
+    syllabus:['LLM fundamentals','Prompt engineering','RAG architecture','Vector databases','Fine-tuning with LoRA','Building AI agents','Tool use & function calling','Production deployment']},
+  {id:8,cat:'Business',emoji:'📈',bg:'linear-gradient(135deg,#081510,#1a3a1a)',title:'Growth Marketing',desc:'Data-driven growth strategies, A/B testing, SEO, paid acquisition, and building repeatable growth engines.',price:1499,orig:2999,duration:'8h 45m',lessons:22,level:'All levels',instructor:'Ayesha Khan',rating:4.6,students:3210,
+    syllabus:['Growth mindset','Analytics stack','SEO fundamentals','Google & Meta Ads','Email marketing','A/B testing','Conversion optimization','Growth case studies']},
+];
+
+const COUPONS={'FIRST50':{disc:50,type:'pct',label:'50% off'},'SAVE500':{disc:500,type:'flat',label:'₹500 off'},'LEARN20':{disc:20,type:'pct',label:'20% off'}};
+
+// ════════════════════════ STATE ════════════════════════
+const S={
+  user:null,
+  users:JSON.parse(localStorage.getItem('lf_users')||'{}'),
+  cart:[],
+  coupon:null,
+  activeFilter:'All',
+  checkoutData:{},
+  payMethod:'card',
+  videoState:{courseId:null,lessonIdx:0,playing:false},
+};
+function saveU(){localStorage.setItem('lf_users',JSON.stringify(S.users))}
+
+// ════════════════════════ PAGES ════════════════════════
+function goPage(id){
+  if(id==='account'&&!S.user){openM('m-login');return}
+  if(id==='cart'&&S.cart.length===0&&id==='cart'){showToast('Your cart is empty','info');return}
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='cart')renderCart();
+  if(id==='account'){renderAccLearning();renderOrders();renderWishlist()}
+  if(id==='checkout')renderCheckoutSummary();
+}
+
+// ════════════════════════ MODALS ════════════════════════
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+function swModal(a,b){closeM(a);setTimeout(()=>openM(b),180)}
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')})
+});
+
+// ════════════════════════ TOAST ════════════════════════
+let toastT;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'');
+  clearTimeout(toastT);
+  setTimeout(()=>t.classList.add('show'),10);
+  toastT=setTimeout(()=>t.classList.remove('show'),3400);
+}
+
+// ════════════════════════ AUTH ════════════════════════
+function doSignup(){
+  const fn=document.getElementById('s-fname').value.trim();
+  const ln=document.getElementById('s-lname').value.trim();
+  const email=document.getElementById('s-email').value.trim().toLowerCase();
+  const pass=document.getElementById('s-pass').value;
+  if(!fn||!email){showToast('Please fill in all required fields','err');return}
+  if(pass.length<4){showToast('Password must be at least 4 characters','err');return}
+  if(S.users[email]){showToast('Account already exists — please sign in','err');return}
+  S.users[email]={name:fn+' '+ln,fname:fn,lname:ln,email,pass,purchased:[],progress:{},orders:[],wishlist:[],joinDate:new Date().toLocaleDateString('en-IN',{month:'short',year:'numeric'})};
+  saveU();loginUser(S.users[email]);closeM('m-signup');
+  showToast(`Welcome, ${fn}! 🎉`,'ok');
+}
+function doLogin(){
+  const email=document.getElementById('l-email').value.trim().toLowerCase();
+  const pass=document.getElementById('l-pass').value;
+  const u=S.users[email];
+  if(!u||u.pass!==pass){showToast('Incorrect email or password','err');return}
+  loginUser(u);closeM('m-login');
+  showToast(`Welcome back, ${u.fname||u.name}!`,'ok');
+}
+function demoLogin(){
+  const e='demo@learnforge.in';
+  if(!S.users[e])S.users[e]={name:'Demo User',fname:'Demo',lname:'User',email:e,pass:'demo',
+    purchased:[1,3],progress:{1:65,3:20},wishlist:[2,7],
+    orders:[{id:'ORD-10001',date:'12 Jan 2025',amount:'₹1,999',items:['UI/UX Masterclass'],method:'Credit Card',status:'Paid'},
+            {id:'ORD-10002',date:'03 Mar 2025',amount:'₹3,499',items:['Machine Learning Bootcamp'],method:'UPI',status:'Paid'}],
+    joinDate:'Jan 2025'};
+  saveU();loginUser(S.users[e]);closeM('m-login');
+  showToast('Logged in as Demo User ✓','ok');
+}
+function loginUser(u){
+  S.user=u;
+  const init=u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('nav-guest').style.display='none';
+  document.getElementById('nav-user').style.display='flex';
+  document.getElementById('nl-learning').style.display='';
+  document.getElementById('nl-orders').style.display='';
+  document.getElementById('navAv').textContent=init;
+  document.getElementById('navName').textContent=u.fname||u.name.split(' ')[0];
+  document.getElementById('accAv').textContent=init;
+  document.getElementById('accName').textContent=u.name;
+  document.getElementById('accEmail').textContent=u.email;
+  document.getElementById('accSince').textContent='Member since '+u.joinDate;
+  const fn=u.name.split(' ');
+  document.getElementById('set-fname').value=fn[0]||'';
+  document.getElementById('set-lname').value=fn.slice(1).join(' ')||'';
+  document.getElementById('set-email').value=u.email;
+  // Pre-fill checkout
+  document.getElementById('co-fname').value=fn[0]||'';
+  document.getElementById('co-lname').value=fn.slice(1).join(' ')||'';
+  document.getElementById('co-email').value=u.email;
+}
+function doLogout(){
+  S.user=null;
+  document.getElementById('nav-guest').style.display='flex';
+  document.getElementById('nav-user').style.display='none';
+  document.getElementById('nl-learning').style.display='none';
+  document.getElementById('nl-orders').style.display='none';
+  goPage('home');showToast('Signed out successfully');
+}
+function saveSettings(){
+  if(!S.user)return;
+  const fn=document.getElementById('set-fname').value.trim();
+  const ln=document.getElementById('set-lname').value.trim();
+  const email=document.getElementById('set-email').value.trim().toLowerCase();
+  if(!fn||!email){showToast('Name and email are required','err');return}
+  delete S.users[S.user.email];
+  S.user.name=fn+(ln?' '+ln:'');S.user.fname=fn;S.user.lname=ln;S.user.email=email;
+  S.users[email]=S.user;saveU();loginUser(S.user);
+  showToast('Profile updated ✓','ok');
+}
+function changePassword(){
+  const op=document.getElementById('set-oldpass').value;
+  const np=document.getElementById('set-newpass').value;
+  const cp=document.getElementById('set-confpass').value;
+  if(!S.user)return;
+  if(op!==S.user.pass){showToast('Current password is incorrect','err');return}
+  if(np.length<4){showToast('New password too short','err');return}
+  if(np!==cp){showToast('Passwords do not match','err');return}
+  S.user.pass=np;S.users[S.user.email]=S.user;saveU();
+  document.getElementById('set-oldpass').value='';
+  document.getElementById('set-newpass').value='';
+  document.getElementById('set-confpass').value='';
+  showToast('Password updated ✓','ok');
+}
+function deleteAccount(){
+  if(!S.user)return;
+  delete S.users[S.user.email];saveU();doLogout();
+  showToast('Account deleted');
+}
+
+// ════════════════════════ CART ════════════════════════
+function cartTotal(){
+  const sub=S.cart.reduce((a,c)=>a+c.price,0);
+  let disc=0;
+  if(S.coupon){
+    const cp=COUPONS[S.coupon];
+    disc=cp.type==='pct'?Math.round(sub*cp.disc/100):Math.min(cp.disc,sub);
+  }
+  const discounted=sub-disc;
+  const gst=Math.round(discounted*0.18);
+  const total=discounted+gst;
+  const saved=S.cart.reduce((a,c)=>a+(c.orig-c.price),0)+disc;
+  return{sub,disc,discounted,gst,total,saved};
+}
+function addToCart(id){
+  if(!S.user){openM('m-login');return}
+  if(S.cart.find(c=>c.id===id)){showToast('Already in cart','info');return}
+  if(S.user.purchased&&S.user.purchased.includes(id)){showToast('You already own this course','info');return}
+  const c=COURSES.find(x=>x.id===id);
+  S.cart.push({...c});
+  updateCartBadge();
+  showToast(`"${c.title}" added to cart 🛒`,'ok');
+  renderGrid();
+}
+function removeFromCart(id){
+  S.cart=S.cart.filter(c=>c.id!==id);
+  updateCartBadge();renderCart();renderGrid();
+  if(S.cart.length===0){goPage('home');showToast('Cart is empty')}
+}
+function clearCart(){S.cart=[];S.coupon=null;updateCartBadge();goPage('home');showToast('Cart cleared')}
+function updateCartBadge(){
+  const n=S.cart.length;
+  const el=document.getElementById('cartCount');
+  el.textContent=n;el.style.display=n?'flex':'none';
+}
+function applyCoupon(){
+  const code=document.getElementById('coupon-in').value.trim().toUpperCase();
+  const msg=document.getElementById('coupon-msg');
+  if(!code){return}
+  if(COUPONS[code]){
+    S.coupon=code;msg.style.display='block';
+    msg.innerHTML=`<span style="color:var(--green)">✓ Coupon applied: ${COUPONS[code].label}</span>`;
+    renderCartSummary();showToast(`Coupon ${code} applied!`,'ok');
+  }else{
+    msg.style.display='block';
+    msg.innerHTML=`<span style="color:var(--red)">✗ Invalid coupon code</span>`;
+  }
+}
+function renderCart(){
+  const t=cartTotal();
+  document.getElementById('cart-subtitle').textContent=`${S.cart.length} item${S.cart.length!==1?'s':''} in your cart`;
+  // Items
+  const panel=document.getElementById('cart-items-panel');
+  if(!S.cart.length){
+    panel.innerHTML=`<div class="empty"><div class="empty-icon">🛒</div><h3>Your cart is empty</h3><p>Browse courses and add them to your cart</p><button class="btn btn-primary" onclick="goPage('home')">Browse Courses</button></div>`;
+  }else{
+    panel.innerHTML=`<div class="cart-panel-head"><h3>Your Courses (${S.cart.length})</h3><button class="btn btn-outline btn-sm" onclick="clearCart()">Clear all</button></div>`+
+    S.cart.map(c=>`<div class="cart-item">
+      <div class="cart-item-thumb" style="background:${c.bg}">${c.emoji}</div>
+      <div class="cart-item-info">
+        <h4>${c.title}</h4>
+        <p>${c.instructor} · ${c.lessons} lessons · ${c.duration} · ${c.level}</p>
+        <div style="margin-top:.5rem;display:flex;gap:.75rem">
+          <button class="btn btn-danger" style="font-size:.72rem;padding:4px 10px" onclick="removeFromCart(${c.id})">🗑 Remove</button>
+          <button class="btn btn-outline" style="font-size:.72rem;padding:4px 10px" onclick="addToWishlist(${c.id})">❤️ Save for later</button>
+        </div>
+      </div>
+      <div class="cart-item-right">
+        <div class="cart-item-price">₹${c.price.toLocaleString()}</div>
+        <div class="cart-item-orig">₹${c.orig.toLocaleString()}</div>
+        <div style="font-size:.7rem;color:var(--green);margin-top:2px">${Math.round((1-c.price/c.orig)*100)}% off</div>
+      </div>
+    </div>`).join('');
+  }
+  renderCartSummary();
+}
+function renderCartSummary(){
+  const t=cartTotal();
+  document.getElementById('sum-count').textContent=S.cart.length;
+  document.getElementById('sum-subtotal').textContent='₹'+t.sub.toLocaleString();
+  document.getElementById('sum-save').textContent='-₹'+t.saved.toLocaleString();
+  document.getElementById('sum-gst').textContent='₹'+t.gst.toLocaleString();
+  document.getElementById('sum-total').textContent='₹'+t.total.toLocaleString();
+}
+
+// ════════════════════════ CHECKOUT ════════════════════════
+function proceedCheckout(){
+  if(!S.user){openM('m-login');return}
+  if(!S.cart.length){showToast('Cart is empty','err');return}
+  goPage('checkout');
+  setStep(1);
+}
+function setStep(n){
+  [1,2,3].forEach(i=>{
+    const el=document.getElementById('st'+i);
+    el.className='step '+(i<n?'done':i===n?'active':'pending');
+    el.querySelector('.step-num').textContent=i<n?'✓':i;
+  });
+  document.getElementById('co-step1').style.display=n===1?'block':'none';
+  document.getElementById('co-step2').style.display=n===2?'block':'none';
+  document.getElementById('co-step3').style.display=n===3?'block':'none';
+}
+function coStep2(){
+  const fn=document.getElementById('co-fname').value.trim();
+  const email=document.getElementById('co-email').value.trim();
+  if(!fn||!email){showToast('Please fill name and email','err');return}
+  S.checkoutData.fname=document.getElementById('co-fname').value;
+  S.checkoutData.lname=document.getElementById('co-lname').value;
+  S.checkoutData.email=document.getElementById('co-email').value;
+  S.checkoutData.phone=document.getElementById('co-phone').value;
+  S.checkoutData.addr=`${document.getElementById('co-addr1').value} ${document.getElementById('co-addr2').value}`.trim();
+  S.checkoutData.city=document.getElementById('co-city').value;
+  S.checkoutData.state=document.getElementById('co-state').value;
+  S.checkoutData.pin=document.getElementById('co-pin').value;
+  setStep(2);renderCheckoutSummary();
+}
+function coStep1Back(){setStep(1)}
+function coStep3(){
+  if(S.payMethod==='card'){
+    const num=document.getElementById('cc-num').value.replace(/\s/g,'');
+    if(num.length<12){showToast('Enter a valid card number (12+ digits)','err');return}
+    S.checkoutData.payDisplay='Credit/Debit Card ending in ...'+num.slice(-4);
+  }else if(S.payMethod==='upi'){
+    const uid=document.getElementById('upi-id').value||'Selected UPI app';
+    S.checkoutData.payDisplay='UPI: '+uid;
+  }else{
+    const sel=document.querySelector('.bank-opt.sel');
+    S.checkoutData.payDisplay='Net Banking: '+(sel?sel.textContent.trim():'Bank selected');
+  }
+  setStep(3);renderReview();
+}
+function coStep2Back(){setStep(2)}
+function renderCheckoutSummary(){
+  const t=cartTotal();
+  document.getElementById('co-mini-items').innerHTML=S.cart.map(c=>`
+    <div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;border-radius:6px;background:${c.bg};display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">${c.emoji}</div>
+      <div style="flex:1;font-size:.8rem">${c.title}</div>
+      <div style="font-size:.82rem;color:var(--gold);font-weight:600;flex-shrink:0">₹${c.price.toLocaleString()}</div>
+    </div>`).join('');
+  document.getElementById('co-sub').textContent='₹'+t.sub.toLocaleString();
+  document.getElementById('co-disc').textContent='-₹'+t.saved.toLocaleString();
+  document.getElementById('co-gst').textContent='₹'+t.gst.toLocaleString();
+  document.getElementById('co-total2').textContent='₹'+t.total.toLocaleString();
+  document.getElementById('pay-total-btn').textContent='₹'+t.total.toLocaleString();
+}
+function renderReview(){
+  const d=S.checkoutData;
+  document.getElementById('review-items').innerHTML=S.cart.map(c=>`
+    <div style="display:flex;align-items:center;gap:.875rem;padding:.875rem 0;border-bottom:1px solid var(--border)">
+      <div style="width:48px;height:48px;border-radius:8px;background:${c.bg};display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">${c.emoji}</div>
+      <div style="flex:1"><div style="font-size:.9rem;font-weight:500">${c.title}</div><div style="font-size:.75rem;color:var(--text2)">${c.instructor} · ${c.duration}</div></div>
+      <div style="color:var(--gold);font-weight:600">₹${c.price.toLocaleString()}</div>
+    </div>`).join('');
+  document.getElementById('review-billing').innerHTML=
+    `${d.fname} ${d.lname}<br>${d.email}<br>${d.phone||''}<br>${d.addr||''}<br>${d.city||''}, ${d.state||''} ${d.pin||''}`;
+  document.getElementById('review-payment').innerHTML=`<span class="status-badge status-success">✓ ${d.payDisplay}</span>`;
+}
+function placeOrder(){
+  const btn=document.getElementById('place-order-btn');
+  btn.disabled=true;btn.textContent='Processing...';
+  setTimeout(()=>{
+    const t=cartTotal();
+    const oid='ORD-'+Math.floor(10000+Math.random()*90000);
+    const d=S.checkoutData;
+    // Add to purchased
+    S.cart.forEach(c=>{
+      if(!S.user.purchased.includes(c.id)){
+        S.user.purchased.push(c.id);
+        S.user.progress[c.id]=0;
+      }
+    });
+    // Add order
+    if(!S.user.orders)S.user.orders=[];
+    S.user.orders.unshift({
+      id:oid,
+      date:new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}),
+      amount:'₹'+t.total.toLocaleString(),
+      items:S.cart.map(c=>c.title),
+      method:d.payDisplay,
+      status:'Paid'
+    });
+    S.users[S.user.email]=S.user;saveU();
+    // Confirmation page
+    document.getElementById('confirm-email').textContent=d.email;
+    document.getElementById('confirm-oid').textContent=oid;
+    document.getElementById('confirm-date').textContent=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('confirm-pay').textContent=d.payDisplay;
+    document.getElementById('confirm-amount').textContent='₹'+t.total.toLocaleString();
+    document.getElementById('confirm-courses').innerHTML=S.cart.map(c=>`
+      <div class="confirm-course">
+        <div class="confirm-course-icon" style="background:${c.bg}">${c.emoji}</div>
+        <div class="confirm-course-info">
+          <h4>${c.title}</h4>
+          <p>${c.instructor} · ${c.lessons} lessons · ${c.duration} · Lifetime access ✓</p>
+        </div>
+        <span class="owned-badge">✓ Unlocked</span>
+      </div>`).join('');
+    // Clear cart
+    S.cart=[];S.coupon=null;updateCartBadge();
+    btn.disabled=false;btn.innerHTML='🔒 Place Order & Pay <span id="pay-total-btn"></span>';
+    goPage('confirm');
+    showToast('🎉 Order placed successfully!','ok');
+  },1800);
+}
+
+// ════════════════════════ PAYMENT METHODS ════════════════════════
+function selectPay(method,el){
+  S.payMethod=method;
+  document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('pay-card').style.display=method==='card'?'block':'none';
+  document.getElementById('pay-upi').style.display=method==='upi'?'block':'none';
+  document.getElementById('pay-netbank').style.display=method==='netbank'?'block':'none';
+}
+function fmtCard(el){
+  let v=el.value.replace(/\D/g,'').slice(0,16);
+  el.value=v.replace(/(.{4})/g,'$1 ').trim();
+  const display=v.padEnd(16,'•').replace(/(.{4})/g,'$1 ').trim();
+  document.getElementById('card-num-display').textContent=display;
+}
+function fmtExp(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>=2)v=v.slice(0,2)+'/'+v.slice(2,4);
+  el.value=v;
+  document.getElementById('card-exp-display').textContent=v||'MM/YY';
+}
+function selUpi(el){document.querySelectorAll('.upi-app').forEach(a=>a.classList.remove('sel'));el.classList.add('sel')}
+function selBank(el){document.querySelectorAll('.bank-opt').forEach(a=>a.classList.remove('sel'));el.classList.add('sel')}
+
+// ════════════════════════ COURSE GRID ════════════════════════
+const CATS=['All',...[...new Set(COURSES.map(c=>c.cat))]];
+function initFilters(){
+  document.getElementById('filter-pills').innerHTML=CATS.map(c=>`<button class="pill${c===S.activeFilter?' on':''}" onclick="setFilter('${c}')">${c}</button>`).join('');
+}
+function setFilter(f){S.activeFilter=f;initFilters();renderGrid()}
+function renderGrid(){
+  const q=(document.getElementById('search-in')||{value:''}).value.toLowerCase();
+  const list=COURSES.filter(c=>{
+    const mc=S.activeFilter==='All'||c.cat===S.activeFilter;
+    const mq=!q||c.title.toLowerCase().includes(q)||c.cat.toLowerCase().includes(q)||c.instructor.toLowerCase().includes(q)||c.desc.toLowerCase().includes(q);
+    return mc&&mq;
+  });
+  const g=document.getElementById('course-grid');
+  if(!list.length){g.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🔍</div><h3>No courses found</h3><p>Try a different filter or search term</p></div>`;return}
+  g.innerHTML=list.map(c=>{
+    const owned=S.user&&S.user.purchased&&S.user.purchased.includes(c.id);
+    const inCart=S.cart.find(x=>x.id===c.id);
+    const disc=Math.round((1-c.price/c.orig)*100);
+    return`<div class="cc" onclick="openCourse(${c.id})">
+      <div class="cc-thumb" style="background:${c.bg}">
+        ${c.emoji}
+        <div class="cc-ribbon">Save ${disc}%</div>
+        <div class="cc-level">${c.level}</div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-cat">${c.cat}</div>
+        <div class="cc-title">${c.title}</div>
+        <div class="cc-desc">${c.desc}</div>
+        <div class="cc-meta"><span>📹 ${c.lessons} lessons</span><span>⏱ ${c.duration}</span><span>⭐ ${c.rating}</span><span>👥 ${c.students.toLocaleString()}</span></div>
+        <div class="cc-footer">
+          <div><span class="cc-price">₹${c.price.toLocaleString()}</span><span class="cc-orig">₹${c.orig.toLocaleString()}</span></div>
+          ${owned?'<span class="owned-badge">✓ Owned</span>':inCart?'<span class="cart-badge">✓ In Cart</span>':`<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();addToCart(${c.id})">🛒 Add to Cart</button>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════ COURSE DETAIL MODAL ════════════════════════
+function openCourse(id){
+  const c=COURSES.find(x=>x.id===id);if(!c)return;
+  const owned=S.user&&S.user.purchased&&S.user.purchased.includes(c.id);
+  const inCart=S.cart.find(x=>x.id===id);
+  const disc=Math.round((1-c.price/c.orig)*100);
+  document.getElementById('m-course-body').innerHTML=`
+    <div style="background:${c.bg};height:220px;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:center;font-size:5rem">${c.emoji}</div>
+    <div style="padding:1.75rem">
+      <div style="display:flex;flex-wrap:wrap;gap:.625rem;margin-bottom:.875rem">
+        <span style="background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.25);color:var(--pur3);border-radius:100px;padding:3px 12px;font-size:.72rem">${c.cat}</span>
+        <span style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:var(--green);border-radius:100px;padding:3px 12px;font-size:.72rem">Save ${disc}%</span>
+        ${owned?'<span class="owned-badge">✓ You own this</span>':''}
+      </div>
+      <div style="font-family:var(--font-h);font-size:1.6rem;font-weight:500;margin-bottom:.625rem;line-height:1.2">${c.title}</div>
+      <p style="color:var(--text2);font-size:.9rem;line-height:1.7;margin-bottom:1.25rem">${c.desc}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:1.25rem;margin-bottom:1.25rem;font-size:.82rem;color:var(--text2)">
+        <span>👨‍🏫 <strong style="color:var(--text)">${c.instructor}</strong></span>
+        <span>⭐ ${c.rating} <span style="color:var(--text3)">(${c.students.toLocaleString()} students)</span></span>
+        <span>📹 ${c.lessons} lessons</span><span>⏱ ${c.duration}</span><span>📶 ${c.level}</span>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r);padding:1.1rem 1.25rem;margin-bottom:1.5rem">
+        <div style="font-size:.72rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem">Curriculum</div>
+        ${c.syllabus.map((s,i)=>`<div style="display:flex;align-items:center;gap:.75rem;padding:6px 0;border-bottom:1px solid var(--border);font-size:.83rem${i===c.syllabus.length-1?';border-bottom:none':''}">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--text3);flex-shrink:0">${i+1}</div>
+          ${s}</div>`).join('')}
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:1.25rem;border-top:1px solid var(--border);flex-wrap:wrap;gap:1rem">
+        <div><span style="font-family:var(--font-h);font-size:1.8rem;font-weight:700;color:var(--gold)">₹${c.price.toLocaleString()}</span><span style="font-size:.9rem;color:var(--text3);text-decoration:line-through;margin-left:6px">₹${c.orig.toLocaleString()}</span></div>
+        ${owned
+          ?`<button class="btn btn-green" onclick="closeM('m-course');openVideoPlayer(${c.id})">▶ Watch Now</button>`
+          :inCart
+          ?`<button class="btn btn-outline" onclick="closeM('m-course');goPage('cart')">🛒 View Cart</button>`
+          :`<div style="display:flex;gap:.75rem"><button class="btn btn-outline" onclick="addToWishlist(${c.id})">❤️ Wishlist</button><button class="btn btn-gold" onclick="closeM('m-course');addToCart(${c.id})">🛒 Add to Cart</button></div>`}
+      </div>
+    </div>`;
+  openM('m-course');
+}
+
+// ════════════════════════ ACCOUNT PANELS ════════════════════════
+function accPanel(id,el){
+  document.querySelectorAll('.acc-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.side-item').forEach(i=>i.classList.remove('on'));
+  document.getElementById('ap-'+id).classList.add('on');
+  if(el)el.classList.add('on');
+}
+function renderAccLearning(){
+  if(!S.user)return;
+  const el=document.getElementById('acc-courses-list');
+  document.getElementById('acc-learning-sub').textContent=(S.user.purchased||[]).length+' course'+(S.user.purchased.length!==1?'s':'')+' purchased';
+  if(!S.user.purchased||!S.user.purchased.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><h3>No courses yet</h3><p>Browse the catalog and purchase your first course</p><button class="btn btn-primary" onclick="goPage('home')">Browse Courses →</button></div>`;
+    return;
+  }
+  el.innerHTML=COURSES.filter(c=>S.user.purchased.includes(c.id)).map(c=>{
+    const prog=S.user.progress[c.id]||0;
+    const done=Math.round(c.lessons*prog/100);
+    const lbl=prog===100?'Revisit ↩':prog>0?'Continue →':'Start →';
+    return`<div class="lc">
+      <div class="lc-icon" style="background:${c.bg}">${c.emoji}</div>
+      <div class="lc-info">
+        <h4>${c.title}</h4>
+        <div class="meta">By ${c.instructor} · ${c.lessons} lessons · ${c.duration}</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${prog}%"></div></div>
+        <div class="prog-lbl">${prog}% complete — ${done} of ${c.lessons} lessons</div>
+      </div>
+      <div class="lc-actions">
+        <button class="btn btn-primary btn-sm" onclick="openVideoPlayer(${c.id})">${lbl}</button>
+        <button class="btn btn-outline btn-sm" onclick="openCourse(${c.id})">Details</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderOrders(){
+  if(!S.user)return;
+  const orders=S.user.orders||[];
+  const tbody=document.getElementById('orders-tbody');
+  if(!orders.length){
+    tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text3)">No orders yet</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=orders.map(o=>`<tr>
+    <td style="color:var(--pur3);font-weight:500">${o.id}</td>
+    <td>${o.items.join(', ')}</td>
+    <td>${o.date}</td>
+    <td style="color:var(--gold);font-weight:600">${o.amount}</td>
+    <td><span class="status-badge status-success">✓ ${o.status}</span></td>
+    <td><button class="btn btn-outline btn-sm" onclick="downloadInvoice('${o.id}')">⬇ Invoice</button></td>
+  </tr>`).join('');
+}
+function downloadInvoice(oid){showToast(`Invoice ${oid} downloaded ⬇`,'ok')}
+function renderWishlist(){
+  if(!S.user)return;
+  const wl=S.user.wishlist||[];
+  const g=document.getElementById('wishlist-grid');
+  if(!wl.length){
+    g.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">❤️</div><h3>Wishlist is empty</h3><p>Click ❤️ on any course to save it here</p></div>`;
+    return;
+  }
+  g.innerHTML=COURSES.filter(c=>wl.includes(c.id)).map(c=>{
+    const owned=S.user.purchased&&S.user.purchased.includes(c.id);
+    const inCart=S.cart.find(x=>x.id===c.id);
+    const disc=Math.round((1-c.price/c.orig)*100);
+    return`<div class="cc" onclick="openCourse(${c.id})">
+      <div class="cc-thumb" style="background:${c.bg}">${c.emoji}<div class="cc-ribbon">Save ${disc}%</div></div>
+      <div class="cc-body">
+        <div class="cc-cat">${c.cat}</div>
+        <div class="cc-title">${c.title}</div>
+        <div class="cc-meta"><span>📹 ${c.lessons} lessons</span><span>⭐ ${c.rating}</span></div>
+        <div class="cc-footer">
+          <span class="cc-price">₹${c.price.toLocaleString()}</span>
+          ${owned?'<span class="owned-badge">✓ Owned</span>':inCart?'<span class="cart-badge">In Cart</span>':`<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();addToCart(${c.id})">🛒 Add</button>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function addToWishlist(id){
+  if(!S.user){openM('m-login');return}
+  if(!S.user.wishlist)S.user.wishlist=[];
+  if(S.user.wishlist.includes(id)){showToast('Already in wishlist','info');return}
+  S.user.wishlist.push(id);
+  S.users[S.user.email]=S.user;saveU();
+  showToast('Added to wishlist ❤️','ok');
+}
+
+// ════════════════════════ VIDEO PLAYER ════════════════════════
+function openVideoPlayer(id){
+  if(!S.user||!S.user.purchased||!S.user.purchased.includes(id)){showToast('Please purchase this course first','err');return}
+  const c=COURSES.find(x=>x.id===id);if(!c)return;
+  S.videoState={courseId:id,lessonIdx:0,playing:false};
+  document.getElementById('vid-cat').textContent=c.cat+' · '+c.instructor;
+  document.getElementById('vid-course-title').textContent=c.title;
+  document.getElementById('vid-total-lessons').textContent=c.syllabus.length;
+  updateVideoLesson();
+  goPage('video');
+}
+function updateVideoLesson(){
+  const {courseId,lessonIdx}=S.videoState;
+  const c=COURSES.find(x=>x.id===courseId);
+  const prog=S.user.progress[courseId]||0;
+  const doneLessons=Math.floor(c.syllabus.length*prog/100);
+  document.getElementById('vid-lesson-num').textContent=`Lesson ${lessonIdx+1} of ${c.syllabus.length}`;
+  document.getElementById('vid-lesson-title').textContent=c.syllabus[lessonIdx];
+  document.getElementById('vid-prog-bar').style.width=prog+'%';
+  document.getElementById('vid-prog-label').textContent=prog+'% complete';
+  document.getElementById('play-btn').textContent='▶';
+  document.getElementById('vp-label').textContent='Click to play';
+  S.videoState.playing=false;
+  // Lesson list
+  document.getElementById('lesson-list-items').innerHTML=c.syllabus.map((s,i)=>{
+    const done=i<doneLessons;
+    const curr=i===lessonIdx;
+    return`<div class="lesson-item${curr?' active':''}" onclick="S.videoState.lessonIdx=${i};updateVideoLesson()">
+      <div class="lesson-dot ${done?'done':curr?'current':'pending'}">${done?'✓':i+1}</div>
+      <div class="lesson-name">${s}</div>
+      <div class="lesson-dur">${Math.floor(Math.random()*15+5)}m</div>
+    </div>`;
+  }).join('');
+}
+function togglePlay(){
+  S.videoState.playing=!S.videoState.playing;
+  const btn=document.getElementById('play-btn');
+  const lbl=document.getElementById('vp-label');
+  btn.textContent=S.videoState.playing?'⏸':'▶';
+  lbl.textContent=S.videoState.playing?'Playing...':'Paused';
+  if(S.videoState.playing)showToast('▶ Playing lesson...','info');
+}
+function markDone(){
+  const {courseId,lessonIdx}=S.videoState;
+  const c=COURSES.find(x=>x.id===courseId);
+  const newProg=Math.min(100,Math.round(((lessonIdx+1)/c.syllabus.length)*100));
+  S.user.progress[courseId]=Math.max(S.user.progress[courseId]||0,newProg);
+  S.users[S.user.email]=S.user;saveU();
+  updateVideoLesson();
+  showToast(newProg===100?'🏆 Course complete! Certificate earned!':'Lesson marked complete ✓','ok');
+}
+function nextLesson(){
+  const c=COURSES.find(x=>x.id===S.videoState.courseId);
+  if(S.videoState.lessonIdx<c.syllabus.length-1){S.videoState.lessonIdx++;updateVideoLesson()}
+  else showToast('This is the last lesson!','info');
+}
+function prevLesson(){
+  if(S.videoState.lessonIdx>0){S.videoState.lessonIdx--;updateVideoLesson()}
+  else showToast('This is the first lesson','info');
+}
+
+// ════════════════════════ INIT ════════════════════════
+initFilters();
+renderGrid();
+</script>
+</body>
+</html>

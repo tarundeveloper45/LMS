@@ -1,47 +1,140 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>TaurnLMS — Learn & Grow</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 
-<!-- ═══ FIREBASE SDK ═══ -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { initializeAuth, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+<!-- ═══ FIREBASE CONFIG ═══ -->
+<script>
+const FB_API_KEY = "AIzaSyCcUU9l7Qxm05J5mJmk_9kmDKzkuIN5MM4";
+const FB_PROJECT = "taurnlms";
+const FB_AUTH_URL = "https://identitytoolkit.googleapis.com/v1/accounts";
+const FB_DB_URL = `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents`;
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCcUU9l7Qxm05J5mJmk_9kmDKzkuIN5MM4",
-    authDomain: "taurnlms.firebaseapp.com",
-    projectId: "taurnlms",
-    storageBucket: "taurnlms.firebasestorage.app",
-    messagingSenderId: "1026339503227",
-    appId: "1:1026339503227:web:414bd066c7968e9a4936de",
-    measurementId: "G-N7SPQ3WBY8"
+// ── Simple localStorage-based session ──
+const _session = {
+  get: () => { try { return JSON.parse(localStorage.getItem('taurn_session')||'null'); } catch(e){ return null; } },
+  set: (d) => localStorage.setItem('taurn_session', JSON.stringify(d)),
+  clear: () => localStorage.removeItem('taurn_session')
+};
+
+// ── REST AUTH ──
+async function fbSignup(email, password) {
+  const r = await fetch(`${FB_AUTH_URL}:signUp?key=${FB_API_KEY}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({email, password, returnSecureToken:true})
+  });
+  const d = await r.json();
+  if(!r.ok) throw {code: d.error?.message || 'unknown'};
+  return d;
+}
+
+async function fbLogin(email, password) {
+  const r = await fetch(`${FB_AUTH_URL}:signInWithPassword?key=${FB_API_KEY}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({email, password, returnSecureToken:true})
+  });
+  const d = await r.json();
+  if(!r.ok) throw {code: d.error?.message || 'unknown'};
+  return d;
+}
+
+async function fbRefreshToken(refreshToken) {
+  const r = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FB_API_KEY}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({grant_type:'refresh_token', refresh_token:refreshToken})
+  });
+  const d = await r.json();
+  if(!r.ok) throw new Error('Token refresh failed');
+  return d;
+}
+
+// ── FIRESTORE REST ──
+async function fsGet(path, idToken) {
+  const r = await fetch(`${FB_DB_URL}/${path}`, {
+    headers: {'Authorization': `Bearer ${idToken}`}
+  });
+  if(r.status===404) return null;
+  const d = await r.json();
+  if(!r.ok) return null;
+  return fsDeserialize(d.fields || {});
+}
+
+async function fsSet(path, data, idToken) {
+  const fields = fsSerialize(data);
+  const r = await fetch(`${FB_DB_URL}/${path}?updateMask.fieldPaths=${Object.keys(data).join('&updateMask.fieldPaths=')}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json','Authorization':`Bearer ${idToken}`},
+    body: JSON.stringify({fields})
+  });
+  return r.ok;
+}
+
+async function fsAddDoc(path, data, idToken) {
+  const fields = fsSerialize(data);
+  const r = await fetch(`${FB_DB_URL}/${path}`, {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${idToken}`},
+    body: JSON.stringify({fields})
+  });
+  return r.ok;
+}
+
+async function fsList(path, idToken) {
+  const r = await fetch(`${FB_DB_URL}/${path}`, {
+    headers:{'Authorization':`Bearer ${idToken}`}
+  });
+  if(!r.ok) return [];
+  const d = await r.json();
+  return (d.documents||[]).map(doc=>({
+    id: doc.name.split('/').pop(),
+    ...fsDeserialize(doc.fields||{})
+  }));
+}
+
+function fsSerialize(obj) {
+  const out = {};
+  for(const [k,v] of Object.entries(obj)) {
+    if(v === null || v === undefined) continue;
+    if(typeof v === 'string') out[k] = {stringValue: v};
+    else if(typeof v === 'number') out[k] = {integerValue: v};
+    else if(typeof v === 'boolean') out[k] = {booleanValue: v};
+    else if(Array.isArray(v)) out[k] = {arrayValue:{values: v.map(i => typeof i==='string'?{stringValue:i}:{integerValue:i})}};
+    else if(typeof v === 'object') out[k] = {mapValue:{fields: fsSerialize(v)}};
+  }
+  return out;
+}
+
+function fsDeserialize(fields) {
+  const out = {};
+  for(const [k,v] of Object.entries(fields)) {
+    if(v.stringValue !== undefined) out[k] = v.stringValue;
+    else if(v.integerValue !== undefined) out[k] = parseInt(v.integerValue);
+    else if(v.booleanValue !== undefined) out[k] = v.booleanValue;
+    else if(v.arrayValue) out[k] = (v.arrayValue.values||[]).map(i=>i.stringValue||parseInt(i.integerValue)||i.booleanValue);
+    else if(v.mapValue) out[k] = fsDeserialize(v.mapValue.fields||{});
+    else if(v.timestampValue) out[k] = v.timestampValue;
+  }
+  return out;
+}
+
+function friendlyErr(code) {
+  const map = {
+    'EMAIL_EXISTS': 'This email is already registered. Please sign in.',
+    'INVALID_EMAIL': 'Please enter a valid email address.',
+    'WEAK_PASSWORD : Password should be at least 6 characters': 'Password must be at least 6 characters.',
+    'WEAK_PASSWORD': 'Password must be at least 6 characters.',
+    'EMAIL_NOT_FOUND': 'No account found with this email.',
+    'INVALID_PASSWORD': 'Incorrect password. Please try again.',
+    'INVALID_LOGIN_CREDENTIALS': 'Incorrect email or password.',
+    'TOO_MANY_ATTEMPTS_TRY_LATER': 'Too many attempts. Please wait a moment.',
+    'USER_DISABLED': 'This account has been disabled.',
   };
+  return map[code] || 'Something went wrong: ' + code;
+}
 
-  const app  = initializeApp(firebaseConfig);
-  const auth = initializeAuth(app, { persistence: browserLocalPersistence });
-  const db   = getFirestore(app);
-
-  // ── expose to window so non-module scripts can call ──
-  window._FB = {
-    auth, db,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged,
-    updatePassword,
-    EmailAuthProvider,
-    reauthenticateWithCredential,
-    doc, setDoc, getDoc, updateDoc,
-    collection, addDoc, getDocs,
-    query, where, serverTimestamp
-  };
-  window._FB_READY = true;
-  document.dispatchEvent(new Event('fb-ready'));
+window._FB_READY = true;
+document.dispatchEvent(new Event('fb-ready'));
 </script>
 
 <style>
@@ -670,57 +763,52 @@ const CATS = ['All',...[...new Set(COURSES.map(c=>c.cat))]];
 //  STATE
 // ══════════════════════════════════════════════
 let S = {
-  user: null,       // Firebase auth user
-  profile: null,    // Firestore profile doc
+  user: null,
+  profile: null,
   cart: [],
   activeFilter: 'All',
   payMethod: 'card',
   vidState: {courseId:null,lessonIdx:0},
-  fbReady: false,
 };
 
 // ══════════════════════════════════════════════
-//  FIREBASE HELPERS
+//  FIREBASE REST HELPERS
 // ══════════════════════════════════════════════
-function FB(){ return window._FB; }
+function getToken(){ return S.user?.idToken || null; }
 
 async function getProfile(uid){
-  const {db,doc,getDoc} = FB();
-  const snap = await getDoc(doc(db,'users',uid));
-  return snap.exists() ? snap.data() : null;
+  const token = getToken(); if(!token) return null;
+  return await fsGet(`users/${uid}`, token);
 }
 
-async function saveProfile_db(uid,data){
-  const {db,doc,setDoc} = FB();
-  await setDoc(doc(db,'users',uid), data, {merge:true});
+async function saveProfile_db(uid, data){
+  const token = getToken(); if(!token) return;
+  await fsSet(`users/${uid}`, data, token);
 }
 
 async function markPurchased(uid, courseIds, orderData){
-  const {db,doc,setDoc,updateDoc,collection,addDoc,serverTimestamp} = FB();
-  // Save order
-  await addDoc(collection(db,'users',uid,'orders'), {
-    ...orderData, createdAt: serverTimestamp()
-  });
-  // Merge purchased courses
+  const token = getToken(); if(!token) return;
+  await fsAddDoc(`users/${uid}/orders`, orderData, token);
   const prof = S.profile || {};
   const existing = prof.purchased || [];
   const merged = [...new Set([...existing, ...courseIds])];
   const progress = prof.progress || {};
   courseIds.forEach(id=>{ if(!progress[id]) progress[id]=0; });
-  await setDoc(doc(db,'users',uid),{purchased:merged,progress},{merge:true});
+  await fsSet(`users/${uid}`, {purchased:merged, progress}, token);
   S.profile.purchased = merged;
   S.profile.progress  = progress;
 }
 
 async function saveProgress_db(uid, courseId, pct){
-  const {db,doc,setDoc} = FB();
-  await setDoc(doc(db,'users',uid),{progress:{[courseId]:pct}},{merge:true});
+  const token = getToken(); if(!token) return;
+  const prog = S.profile?.progress || {};
+  prog[courseId] = pct;
+  await fsSet(`users/${uid}`, {progress: prog}, token);
 }
 
 async function getOrders(uid){
-  const {db,collection,getDocs,query} = FB();
-  const snap = await getDocs(collection(db,'users',uid,'orders'));
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
+  const token = getToken(); if(!token) return [];
+  return await fsList(`users/${uid}/orders`, token);
 }
 
 // ══════════════════════════════════════════════
@@ -729,41 +817,56 @@ async function getOrders(uid){
 async function doSignup(){
   const fn=v('s-fn'),ln=v('s-ln'),em=v('s-em').toLowerCase(),pw=v('s-pw');
   if(!fn||!em||pw.length<6){showErr('s-err','Please fill all fields. Password min 6 chars.');return;}
+  hideErr('s-err');
   setBtnLoad('s-btn',true);
   try{
-    const {auth,createUserWithEmailAndPassword,db,doc,setDoc,serverTimestamp} = FB();
-    const cred = await createUserWithEmailAndPassword(auth, em, pw);
+    const cred = await fbSignup(em, pw);
+    S.user = {uid: cred.localId, idToken: cred.idToken, refreshToken: cred.refreshToken, email: em};
+    _session.set(S.user);
     const profile = {
-      name: fn+' '+ln, fname:fn, lname:ln, email:em,
+      name: fn+(ln?' '+ln:''), fname:fn, lname:ln||'', email:em,
       purchased:[], progress:{},
       joinDate: new Date().toLocaleDateString('en-IN',{month:'short',year:'numeric'})
     };
-    await setDoc(doc(db,'users',cred.user.uid), profile);
+    await fsSet(`users/${cred.localId}`, profile, cred.idToken);
+    S.profile = profile;
     closeM('m-signup');
+    showUserNav();
+    renderGrid();
     toast(`Welcome, ${fn}! 🎉`,'ok');
   }catch(e){
-    showErr('s-err', friendlyErr(e.code));
+    console.error('Signup error:', e);
+    showErr('s-err', friendlyErr(e.code||e.message||''));
   }finally{ setBtnLoad('s-btn',false); }
 }
 
 async function doLogin(){
   const em=v('l-em').toLowerCase(), pw=v('l-pw');
   if(!em||!pw){showErr('l-err','Please enter email and password.');return;}
+  hideErr('l-err');
   setBtnLoad('l-btn',true);
   try{
-    const {auth,signInWithEmailAndPassword} = FB();
-    await signInWithEmailAndPassword(auth, em, pw);
+    const cred = await fbLogin(em, pw);
+    S.user = {uid: cred.localId, idToken: cred.idToken, refreshToken: cred.refreshToken, email: em};
+    _session.set(S.user);
+    S.profile = await fsGet(`users/${cred.localId}`, cred.idToken);
+    if(!S.profile){
+      S.profile = {name:em,fname:em.split('@')[0],lname:'',email:em,purchased:[],progress:{},joinDate:new Date().toLocaleDateString('en-IN',{month:'short',year:'numeric'})};
+      await fsSet(`users/${cred.localId}`, S.profile, cred.idToken);
+    }
     closeM('m-login');
+    showUserNav();
+    renderGrid();
     toast('Welcome back! 👋','ok');
   }catch(e){
-    showErr('l-err', friendlyErr(e.code));
+    console.error('Login error:', e);
+    showErr('l-err', friendlyErr(e.code||e.message||''));
   }finally{ setBtnLoad('l-btn',false); }
 }
 
 async function doLogout(){
-  const {auth,signOut} = FB();
-  await signOut(auth);
   S.user=null; S.profile=null;
+  _session.clear();
   showGuestNav();
   goPage('home');
   toast('Signed out successfully');
@@ -849,29 +952,41 @@ async function saveProfile(){
 
 async function changePass(){
   if(!S.user) return;
-  const op=v('set-op'), np=v('set-np'), cp=v('set-cp');
-  if(!op||!np||!cp){toast('Fill all password fields','err');return;}
+  const np=v('set-np'), cp=v('set-cp');
+  if(!np||!cp){toast('Fill all password fields','err');return;}
   if(np!==cp){toast('New passwords do not match','err');return;}
   if(np.length<6){toast('Password min 6 characters','err');return;}
   try{
-    const {EmailAuthProvider,reauthenticateWithCredential,updatePassword} = FB();
-    const cred = EmailAuthProvider.credential(S.user.email, op);
-    await reauthenticateWithCredential(S.user, cred);
-    await updatePassword(S.user, np);
+    const r = await fetch(`${FB_AUTH_URL}:update?key=${FB_API_KEY}`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({idToken: S.user.idToken, password: np, returnSecureToken:true})
+    });
+    const d = await r.json();
+    if(!r.ok) throw {code: d.error?.message};
+    S.user.idToken = d.idToken;
+    S.user.refreshToken = d.refreshToken;
+    _session.set(S.user);
     document.getElementById('set-op').value='';
     document.getElementById('set-np').value='';
     document.getElementById('set-cp').value='';
     toast('Password updated ✓','ok');
-  }catch(e){ toast(friendlyErr(e.code),'err'); }
+  }catch(e){ toast(friendlyErr(e.code||''),'err'); }
 }
 
 async function doDeleteAccount(){
   if(!S.user) return;
   try{
-    await S.user.delete();
-    toast('Account deleted');
+    const r = await fetch(`${FB_AUTH_URL}:delete?key=${FB_API_KEY}`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({idToken: S.user.idToken})
+    });
+    if(!r.ok) throw new Error('Failed');
+    _session.clear();
+    S.user=null; S.profile=null;
+    showGuestNav();
     goPage('home');
-  }catch(e){ toast('Please sign out and sign in again before deleting account','err'); }
+    toast('Account deleted');
+  }catch(e){ toast('Error deleting account. Please try again.','err'); }
 }
 
 // ══════════════════════════════════════════════
